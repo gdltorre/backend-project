@@ -3,6 +3,7 @@ This project is made to be ran in Intel based processors. If running in Apple's 
 ```
 rm -rf node_modules
 npm install
+```
 
 Before attemtping to connect to the database, make sure to create the admin user and the database_admin database with the following commands:
 ```
