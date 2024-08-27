@@ -5,6 +5,7 @@ import { User } from '../src/users/user.entity';
 import { Task } from '../src/tasks/task.entity';
 import { TasksService } from '../src/tasks/tasks.service';
 import { setupTestContainer } from './testcontainers-config';
+import { TaskStatus } from 'src/tasks/dto/tasks.dto';
 
 describe('UsersService', () => {
     let usersService: UsersService;
@@ -69,7 +70,7 @@ describe('UsersService', () => {
         const task = await tasksService.create({
             title: 'Test Task',
             description: 'This is a test task',
-            status: 'TODO'
+            status: TaskStatus.TODO,
         }, user);
 
         expect(task).toBeDefined();
@@ -93,13 +94,13 @@ describe('UsersService', () => {
         await tasksService.create({
             title: 'Task 1',
             description: 'First task',
-            status: 'TODO'
+            status: TaskStatus.TODO,
         }, user);
 
         await tasksService.create({
             title: 'Task 2',
             description: 'Second task',
-            status: 'IN_PROGRESS'
+            status: TaskStatus.IN_PROGRESS,
         }, user);
 
         const tasks = await tasksService.findAll(user);
@@ -119,7 +120,7 @@ describe('UsersService', () => {
         const createdTask = await tasksService.create({
             title: 'Find Me',
             description: 'This task should be found',
-            status: 'TODO'
+            status: TaskStatus.TODO,
         }, user);
 
         const foundTask = await tasksService.findOne(createdTask.id, user);
@@ -139,7 +140,7 @@ describe('UsersService', () => {
         const createdTask = await tasksService.create({
             title: 'Update Me',
             description: 'This task should be updated',
-            status: 'TODO'
+            status: TaskStatus.TODO,
         }, user);
 
         const updatedTask = await tasksService.update(createdTask.id, {
@@ -163,7 +164,7 @@ describe('UsersService', () => {
         const createdTask = await tasksService.create({
             title: 'Remove Me',
             description: 'This task should be removed',
-            status: 'TODO'
+            status: TaskStatus.TODO,
         }, user);
 
         await tasksService.remove(createdTask.id, user);

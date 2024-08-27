@@ -19,7 +19,7 @@ export class AuthController {
         return this.authService.register(registerDto);
     }
 
-    @Get('user/:id')
+    @Get('users/:id')
     async getUser(@Param('id') id: string) {
         return this.usersService.findOne(+id);
     }
