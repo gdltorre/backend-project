@@ -5,7 +5,8 @@ rm -rf node_modules
 npm install
 ```
 
-# no longer needed
+// no longer needed
+
 Before attemtping to connect to the database, make sure to create the admin user and the database_admin database with the following commands:
 ```
 createuser -s admin
@@ -23,7 +24,8 @@ Access the database by running command:
 psql -h localhost -p 5432 -U admin -d admin_database
 ```
 
-# no longer needed
+// no longer needed
+
 Lastly, relations weren't created automatically, after logging in to the database with the command, execute this code:
 ```
 CREATE TABLE users (
