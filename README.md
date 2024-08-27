@@ -37,7 +37,8 @@ CREATE TABLE users (
 Run the application with 
 ```
 npm run start:dev
-``
+```
+
 Endpoints for user management:
 
 Register a new user:
