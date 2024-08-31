@@ -63,10 +63,11 @@ let TasksService = class TasksService {
         return task;
     }
     async remove(id, user) {
-        const result = await this.tasksRepository.delete({ id, user: { id: user.id } });
-        if (result.affected === 0) {
-            throw new common_1.NotFoundException(`Task with ID "${id}" not found`);
+        const task = await this.tasksRepository.findOne({ where: { id, user: { id: user.id } } });
+        if (!task) {
+            throw new common_1.NotFoundException('Task with ID "${id}" not found');
         }
+        await this.tasksRepository.remove(task);
     }
 };
 exports.TasksService = TasksService;

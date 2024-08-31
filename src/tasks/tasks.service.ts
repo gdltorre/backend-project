@@ -56,9 +56,10 @@ export class TasksService {
     }
 
     async remove(id: number, user: User): Promise<void> {
-        const result = await this.tasksRepository.delete({ id, user: { id: user.id } });
-        if (result.affected === 0) {
-          throw new NotFoundException(`Task with ID "${id}" not found`);
+        const task = await this.tasksRepository.findOne({ where: { id, user: { id: user.id } } });
+        if (!task){
+            throw new NotFoundException('Task with ID "${id}" not found');
         }
+        await this.tasksRepository.remove(task);
     }
 }
