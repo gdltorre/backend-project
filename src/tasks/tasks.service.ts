@@ -44,8 +44,15 @@ export class TasksService {
           throw new BadRequestException('Invalid task ID');
         }
         const task = await this.findOne(id, user);
-        await this.tasksRepository.update(id, { ...updateTaskDto, user });
-        return this.findOne(id, user);
+        if (!task) {
+            throw new NotFoundException(`Task with ID "${id}" not found`);
+        }
+
+        // Update the Task
+        Object.assign(task, updateTaskDto);
+
+        await this.tasksRepository.save(task);
+        return task;
     }
 
     async remove(id: number, user: User): Promise<void> {

@@ -55,8 +55,12 @@ let TasksService = class TasksService {
             throw new common_1.BadRequestException('Invalid task ID');
         }
         const task = await this.findOne(id, user);
-        await this.tasksRepository.update(id, Object.assign(Object.assign({}, updateTaskDto), { user }));
-        return this.findOne(id, user);
+        if (!task) {
+            throw new common_1.NotFoundException(`Task with ID "${id}" not found`);
+        }
+        Object.assign(task, updateTaskDto);
+        await this.tasksRepository.save(task);
+        return task;
     }
     async remove(id, user) {
         const result = await this.tasksRepository.delete({ id, user: { id: user.id } });

@@ -9,11 +9,14 @@ export enum TaskStatus {
 
 export class CreateTaskDto {
     @IsNotEmpty()
+    @IsString()
     title: string;
 
     @IsOptional()
+    @IsString()
     description?: string;
 
+    @IsOptional()
     @IsEnum(TaskStatus)
     @IsNotEmpty()
     status?: TaskStatus = TaskStatus.TODO;
