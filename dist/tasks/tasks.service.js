@@ -34,6 +34,9 @@ let TasksService = class TasksService {
         return this.tasksRepository.find({ where: { user: { id: user.id } } });
     }
     async findOne(id, user) {
+        if (isNaN(id)) {
+            throw new common_1.BadRequestException('Invalid task ID');
+        }
         const task = await this.tasksRepository.findOne({ where: { id, user: { id: user.id } } });
         if (!task) {
             throw new common_1.NotFoundException(`Task with ID "${id}" not found`);
@@ -41,6 +44,9 @@ let TasksService = class TasksService {
         return task;
     }
     async update(id, updateTaskDto, user) {
+        if (isNaN(id)) {
+            throw new common_1.BadRequestException('Invalid task ID');
+        }
         const task = await this.findOne(id, user);
         Object.assign(task, updateTaskDto);
         return this.tasksRepository.save(task);

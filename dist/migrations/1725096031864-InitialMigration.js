@@ -11,8 +11,11 @@ class InitialMigration1725096031864 {
         });
     }
     async up(queryRunner) {
-        await queryRunner.query(`ALTER TABLE "tasks" DROP COLUMN "status"`);
-        await queryRunner.query(`DROP TYPE "public"."tasks_status_enum"`);
+        await queryRunner.query(`ALTER TABLE "tasks" DROP COLUMN IF EXISTS "status"`);
+        const enumExists = await queryRunner.query(`SELECT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'tasks_status_enum')`);
+        if (enumExists[0].exists) {
+            await queryRunner.query(`DROP TYPE "public"."tasks_status_enum"`);
+        }
         await queryRunner.query(`ALTER TABLE "tasks" ADD "status" character varying NOT NULL`);
     }
     async down(queryRunner) {

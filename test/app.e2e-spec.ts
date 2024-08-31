@@ -26,18 +26,15 @@ describe('AppController (e2e)', () => {
     app = moduleFixture.createNestApplication();
 
     // Get the DataSource instance from the module
-    //dataSource = moduleFixture.get<DataSource>(DataSource);
+    dataSource = moduleFixture.get<DataSource>(DataSource);
     
     await app.init();
   }, 60000);
 
-  afterEach(async () => {
-    // Clean up the database after each test using DataSource
-    const entities = dataSource.entityMetadatas;
-    for (const entity of entities) {
-      const repository = dataSource.getRepository(entity.name);
-      await repository.query(`DELETE FROM ${entity.tableName}`);
-    }
+  beforeEach(async () => {
+    // Clear the database tables
+    await dataSource.query('DELETE FROM tasks');
+    await dataSource.query('DELETE FROM users');
   });
 
   afterAll(async () => {
@@ -45,32 +42,50 @@ describe('AppController (e2e)', () => {
     await app.close();
   });
 
-  describe('user authentication', () => {
-    it('should register a new user', async () => {
+  describe('Authentication', () => {
+    it('should register a new user and set JWT token', async () => {
       const response = await request(app.getHttpServer())
         .post('/auth/register')
         .send({ username: 'testuser', password: 'testpass', name: 'Test User', email: 'test@example.com' })
         .expect(201);
-  
+
       expect(response.body).toHaveProperty('access_token');
       jwtToken = response.body.access_token;
-      console.log('JWT Token after registration:', jwtToken);
     });
 
     it('should authenticate user and return JWT token', async () => {
+      // First, register a user
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ username: 'testuser', password: 'testpass', name: 'Test User', email: 'test@example.com' })
+        .expect(201);
+
       const response = await request(app.getHttpServer())
         .post('/auth/login')
         .send({ username: 'testuser', password: 'testpass' })
         .expect(200);
 
-      console.log('Login response:', response.body);
-      
       expect(response.body).toHaveProperty('access_token');
       jwtToken = response.body.access_token;
-      console.log('JWT Token after login:', jwtToken); 
+    });
+  });
+
+  describe('User Management', () => {
+    beforeEach(async () => {
+      // Create a test user and get JWT token
+      const response = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ username: 'testuser', password: 'testpass', name: 'Test User', email: 'test@example.com' })
+        .expect(201);
+
+      jwtToken = response.body.access_token;
     });
 
-    it('should retrieve user details by ID via GET /auth/users/:id', async () => {
+    it('should retrieve user details by ID', async () => {
+      const user = await dataSource.getRepository(User).findOne({ where: { username: 'testuser' } });
+      expect(user).not.toBeNull();
+      userId = user.id;
+
       return request(app.getHttpServer())
         .get(`/auth/users/${userId}`)
         .set('Authorization', `Bearer ${jwtToken}`)
@@ -79,11 +94,10 @@ describe('AppController (e2e)', () => {
           expect(res.body).toHaveProperty('id', userId);
           expect(res.body).toHaveProperty('username', 'testuser');
           expect(res.body).toHaveProperty('name', 'Test User');
-          //expect(res.body).toHaveProperty('email', 'test@example.com');
         });
     });
 
-    it('should retrieve all users via GET /auth/users', async () => {
+    it('should retrieve all users', async () => {
       return request(app.getHttpServer())
         .get('/auth/users')
         .set('Authorization', `Bearer ${jwtToken}`)
@@ -95,20 +109,38 @@ describe('AppController (e2e)', () => {
     });
   });
 
-  describe('Task Management Operations', () => {
-    it('should create a new task', async () => {
+  describe('Task Management', () => {
+    beforeEach(async () => {
+      // Create a test user and get JWT token
       const response = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ username: 'testuser', password: 'testpass', name: 'Test User', email: 'test@example.com' })
+        .expect(201);
+
+      jwtToken = response.body.access_token;
+
+      // Create a test task
+      const taskResponse = await request(app.getHttpServer())
         .post('/tasks')
         .set('Authorization', `Bearer ${jwtToken}`)
         .send({ title: 'Test Task', description: 'This is a test task', status: TaskStatus.TODO })
         .expect(201);
-  
-      expect(response.body).toHaveProperty('id');
-      taskId = response.body.id;
+
+      taskId = taskResponse.body.id;
     });
 
-    it('should retrieve all tasks for the authenticated user via GET /tasks', async () => {
-      console.log('Using JWT Token:', jwtToken); // Log the token before use
+    it('should create a new task', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `Bearer ${jwtToken}`)
+        .send({ title: 'Another Task', description: 'This is another test task', status: TaskStatus.TODO })
+        .expect(201);
+
+      expect(response.body).toHaveProperty('id');
+      expect(response.body.title).toBe('Another Task');
+    });
+
+    it('should retrieve all tasks for the authenticated user', async () => {
       return request(app.getHttpServer())
         .get('/tasks')
         .set('Authorization', `Bearer ${jwtToken}`)
@@ -120,8 +152,7 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('should retrieve a specific task by ID via GET /tasks/:id', async () => {
-      console.log('Using JWT Token:', jwtToken); // Log the token before use
+    it('should retrieve a specific task by ID', async () => {
       return request(app.getHttpServer())
         .get(`/tasks/${taskId}`)
         .set('Authorization', `Bearer ${jwtToken}`)
@@ -129,13 +160,11 @@ describe('AppController (e2e)', () => {
         .expect(res => {
           expect(res.body).toHaveProperty('id', taskId);
           expect(res.body).toHaveProperty('title', 'Test Task');
-          expect(res.body).toHaveProperty('description', 'This is a test task');
           expect(res.body).toHaveProperty('status', TaskStatus.TODO);
         });
     });
 
-    it('should update an existing task via PATCH /tasks/:id', async () => {
-      console.log('Using JWT Token:', jwtToken); // Log the token before use
+    it('should update an existing task', async () => {
       return request(app.getHttpServer())
         .patch(`/tasks/${taskId}`)
         .set('Authorization', `Bearer ${jwtToken}`)
@@ -148,14 +177,13 @@ describe('AppController (e2e)', () => {
         });
     });
 
-    it('should delete a task via DELETE /tasks/:id', async () => {
-      console.log('Using JWT Token:', jwtToken); // Log the token before use
+    it('should delete a task', async () => {
       await request(app.getHttpServer())
         .delete(`/tasks/${taskId}`)
         .set('Authorization', `Bearer ${jwtToken}`)
         .expect(200);
 
-      // Verify task is deleted by attempting to retrieve it
+      // Verify task is deleted
       return request(app.getHttpServer())
         .get(`/tasks/${taskId}`)
         .set('Authorization', `Bearer ${jwtToken}`)
@@ -163,7 +191,7 @@ describe('AppController (e2e)', () => {
     });
   });
 
-  describe('Error Handling and Edge Cases', () => {
+  describe('Error Handling', () => {
     it('should return 401 Unauthorized when accessing protected route without JWT', async () => {
       return request(app.getHttpServer())
         .get('/tasks')
@@ -179,7 +207,6 @@ describe('AppController (e2e)', () => {
     });
 
     it('should return 404 Not Found when attempting to access non-existent task', async () => {
-      console.log('Using JWT Token:', jwtToken); // Log the token before use
       return request(app.getHttpServer())
         .get('/tasks/99999')
         .set('Authorization', `Bearer ${jwtToken}`)

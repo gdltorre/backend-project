@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './task.entity';
@@ -24,6 +24,9 @@ export class TasksService {
     }
 
     async findOne(id: number, user: User): Promise<Task> {
+        if (isNaN(id)) {
+            throw new BadRequestException('Invalid task ID');
+        }
         const task = await this.tasksRepository.findOne({ where: { id, user: { id: user.id } } });
         if (!task) {
           throw new NotFoundException(`Task with ID "${id}" not found`);
@@ -32,6 +35,9 @@ export class TasksService {
     }
 
     async update(id: number, updateTaskDto: UpdateTaskDto, user: User): Promise<Task> {
+        if (isNaN(id)) {
+            throw new BadRequestException('Invalid task ID');
+        }
         const task = await this.findOne(id, user);
         Object.assign(task, updateTaskDto);
         return this.tasksRepository.save(task);
