@@ -26,17 +26,24 @@ let TasksService = class TasksService {
         return this.tasksRepository.save(task);
     }
     async findAll(user) {
-        return this.tasksRepository.find({ where: { user } });
+        return this.tasksRepository.find({ where: { user: { id: user.id } } });
     }
     async findOne(id, user) {
-        return this.tasksRepository.findOne({ where: { id, user } });
+        return this.tasksRepository.findOne({ where: { id, user: { id: user.id } } });
     }
     async update(id, updateTaskDto, user) {
-        await this.tasksRepository.update({ id, user }, updateTaskDto);
-        return this.findOne(id, user);
+        const task = await this.findOne(id, user);
+        if (!task) {
+            throw new Error('Task not found');
+        }
+        Object.assign(task, updateTaskDto);
+        return this.tasksRepository.save(task);
     }
     async remove(id, user) {
-        await this.tasksRepository.delete({ id, user });
+        const result = await this.tasksRepository.delete({ id, user: { id: user.id } });
+        if (result.affected === 0) {
+            throw new Error('Task not found');
+        }
     }
 };
 exports.TasksService = TasksService;

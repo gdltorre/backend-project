@@ -8,11 +8,7 @@ export declare class AuthController {
         access_token: string;
     }>;
     register(registerDto: any): Promise<{
-        id: number;
-        username: string;
-        name: string;
-        email: string;
-        tasks: import("../tasks/task.entity").Task[];
+        access_token: string;
     }>;
     getUser(id: string): Promise<import("../users/user.entity").User>;
     getUsers(): Promise<import("../users/user.entity").User[]>;

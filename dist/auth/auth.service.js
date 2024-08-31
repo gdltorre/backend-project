@@ -19,23 +19,28 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
+var AuthService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const users_service_1 = require("../users/users.service");
 const bcrypt = require("bcrypt");
-let AuthService = class AuthService {
+let AuthService = AuthService_1 = class AuthService {
     constructor(usersService, jwtService) {
         this.usersService = usersService;
         this.jwtService = jwtService;
+        this.logger = new common_1.Logger(AuthService_1.name);
     }
     async validateUser(username, pass) {
+        this.logger.debug(`Attempting to validate user: ${username}`);
         const user = await this.usersService.findByUsername(username);
         if (user && await bcrypt.compare(pass, user.password)) {
             const { password } = user, result = __rest(user, ["password"]);
+            this.logger.debug('User validation successful');
             return result;
         }
+        this.logger.debug('User validation failed');
         return null;
     }
     async login(user) {
@@ -47,12 +52,11 @@ let AuthService = class AuthService {
     async register(registerDto) {
         const hashedPassword = await bcrypt.hash(registerDto.password, 10);
         const newUser = await this.usersService.create(Object.assign(Object.assign({}, registerDto), { password: hashedPassword }));
-        const { password } = newUser, result = __rest(newUser, ["password"]);
-        return result;
+        return this.login(newUser);
     }
 };
 exports.AuthService = AuthService;
-exports.AuthService = AuthService = __decorate([
+exports.AuthService = AuthService = AuthService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [users_service_1.UsersService,
         jwt_1.JwtService])

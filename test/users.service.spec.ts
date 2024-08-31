@@ -145,7 +145,7 @@ describe('UsersService', () => {
 
         const updatedTask = await tasksService.update(createdTask.id, {
             title: 'Updated Task',
-            status: 'IN_PROGRESS'
+            status: TaskStatus.IN_PROGRESS
         }, user);
 
         expect(updatedTask.title).toBe('Updated Task');

@@ -3,16 +3,13 @@ import { UsersService } from '../users/users.service';
 export declare class AuthService {
     private usersService;
     private jwtService;
+    private readonly logger;
     constructor(usersService: UsersService, jwtService: JwtService);
     validateUser(username: string, pass: string): Promise<any>;
     login(user: any): Promise<{
         access_token: string;
     }>;
     register(registerDto: any): Promise<{
-        id: number;
-        username: string;
-        name: string;
-        email: string;
-        tasks: import("../tasks/task.entity").Task[];
+        access_token: string;
     }>;
 }
