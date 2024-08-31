@@ -12,6 +12,7 @@ const dataSource = new DataSource({
   entities: [User, Task],
   migrations: ['src/migrations/*.ts'],
   migrationsTableName: 'migrations',
+  logging: process.env.NODE_ENV === 'test' ? false : ['error', 'schema'],
 });
 
 export default dataSource;
