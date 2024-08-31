@@ -28,9 +28,24 @@ const users_service_1 = require("../users/users.service");
 const bcrypt = require("bcrypt");
 let AuthService = AuthService_1 = class AuthService {
     constructor(usersService, jwtService) {
-        this.usersService = usersService;
-        this.jwtService = jwtService;
-        this.logger = new common_1.Logger(AuthService_1.name);
+        Object.defineProperty(this, "usersService", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: usersService
+        });
+        Object.defineProperty(this, "jwtService", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: jwtService
+        });
+        Object.defineProperty(this, "logger", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: new common_1.Logger(AuthService_1.name)
+        });
     }
     async validateUser(username, pass) {
         this.logger.debug(`Attempting to validate user: ${username}`);

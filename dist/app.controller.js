@@ -14,7 +14,12 @@ const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
 let AppController = class AppController {
     constructor(appService) {
-        this.appService = appService;
+        Object.defineProperty(this, "appService", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: appService
+        });
     }
     getHello() {
         return this.appService.getHello();

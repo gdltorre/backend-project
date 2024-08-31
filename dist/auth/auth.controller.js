@@ -20,8 +20,18 @@ const jwt_auth_guard_1 = require("./jwt-auth.guard");
 const users_service_1 = require("../users/users.service");
 let AuthController = class AuthController {
     constructor(authService, usersService) {
-        this.authService = authService;
-        this.usersService = usersService;
+        Object.defineProperty(this, "authService", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: authService
+        });
+        Object.defineProperty(this, "usersService", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: usersService
+        });
     }
     async login(req) {
         return this.authService.login(req.user);

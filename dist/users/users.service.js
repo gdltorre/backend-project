@@ -19,7 +19,12 @@ const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./user.entity");
 let UsersService = class UsersService {
     constructor(usersRepository) {
-        this.usersRepository = usersRepository;
+        Object.defineProperty(this, "usersRepository", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: usersRepository
+        });
     }
     async findAll() {
         return this.usersRepository.find();

@@ -18,6 +18,26 @@ var TaskStatus;
     TaskStatus["DONE"] = "DONE";
 })(TaskStatus || (exports.TaskStatus = TaskStatus = {}));
 class CreateTaskDto {
+    constructor() {
+        Object.defineProperty(this, "title", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "description", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "status", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+    }
 }
 exports.CreateTaskDto = CreateTaskDto;
 __decorate([
@@ -36,6 +56,26 @@ __decorate([
     __metadata("design:type", String)
 ], CreateTaskDto.prototype, "status", void 0);
 class UpdateTaskDto {
+    constructor() {
+        Object.defineProperty(this, "title", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "description", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "status", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+    }
 }
 exports.UpdateTaskDto = UpdateTaskDto;
 __decorate([

@@ -19,7 +19,12 @@ const typeorm_2 = require("typeorm");
 const task_entity_1 = require("./task.entity");
 let TasksService = class TasksService {
     constructor(tasksRepository) {
-        this.tasksRepository = tasksRepository;
+        Object.defineProperty(this, "tasksRepository", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: tasksRepository
+        });
     }
     async create(createTaskDto, user) {
         const task = this.tasksRepository.create(Object.assign(Object.assign({}, createTaskDto), { user }));

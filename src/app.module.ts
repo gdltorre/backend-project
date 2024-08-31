@@ -11,7 +11,6 @@ import { Task } from "./tasks/task.entity";
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
-
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
@@ -22,6 +21,8 @@ import { Task } from "./tasks/task.entity";
         database: configService.get('DB_NAME', 'admin_database'),
         entities: [User, Task],
         synchronize: configService.get<boolean>('DB_SYNCHRONIZE', false),
+        migrations: ['dist/migrations/*.js'],
+        migrationsRun: true,
         logging: true,
       }),
       inject: [ConfigService],

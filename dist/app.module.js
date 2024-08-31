@@ -33,6 +33,8 @@ exports.AppModule = AppModule = __decorate([
                     database: configService.get('DB_NAME', 'admin_database'),
                     entities: [user_entity_1.User, task_entity_1.Task],
                     synchronize: configService.get('DB_SYNCHRONIZE', false),
+                    migrations: ['dist/migrations/*.js'],
+                    migrationsRun: true,
                     logging: true,
                 }),
                 inject: [config_1.ConfigService],

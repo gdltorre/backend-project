@@ -19,7 +19,12 @@ const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const tasks_dto_1 = require("./dto/tasks.dto");
 let TasksController = class TasksController {
     constructor(tasksService) {
-        this.tasksService = tasksService;
+        Object.defineProperty(this, "tasksService", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: tasksService
+        });
     }
     create(createTaskDto, req) {
         return this.tasksService.create(createTaskDto, req.user);
