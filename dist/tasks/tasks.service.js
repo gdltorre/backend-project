@@ -27,8 +27,15 @@ let TasksService = class TasksService {
         });
     }
     async create(createTaskDto, user) {
-        const task = this.tasksRepository.create(Object.assign(Object.assign({}, createTaskDto), { user }));
-        return this.tasksRepository.save(task);
+        const { title, description, status } = createTaskDto;
+        const task = this.tasksRepository.create({
+            title,
+            description,
+            status: status || task_entity_1.TaskStatus.TODO,
+            user,
+        });
+        const result = await this.tasksRepository.insert(task);
+        return this.tasksRepository.findOne({ where: { id: result.identifiers[0].id } });
     }
     async findAll(user) {
         return this.tasksRepository.find({ where: { user: { id: user.id } } });
@@ -48,8 +55,8 @@ let TasksService = class TasksService {
             throw new common_1.BadRequestException('Invalid task ID');
         }
         const task = await this.findOne(id, user);
-        Object.assign(task, updateTaskDto);
-        return this.tasksRepository.save(task);
+        await this.tasksRepository.update(id, Object.assign(Object.assign({}, updateTaskDto), { user }));
+        return this.findOne(id, user);
     }
     async remove(id, user) {
         const result = await this.tasksRepository.delete({ id, user: { id: user.id } });

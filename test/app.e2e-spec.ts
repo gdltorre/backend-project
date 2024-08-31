@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from "../src/app.module";
 import { setupTestContainer } from './testcontainers-config';
-import { TaskStatus } from '../src/tasks/dto/tasks.dto';
+import { TaskStatus } from '../src/tasks/task.entity';
 import { DataSource, getConnection } from 'typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../src/users/user.entity';
@@ -136,6 +136,7 @@ describe('AppController (e2e)', () => {
         .send({ title: 'Another Task', description: 'This is another test task', status: TaskStatus.TODO })
         .expect(201);
 
+      console.log('Task creation response:', response.body);
       expect(response.body).toHaveProperty('id');
       expect(response.body.title).toBe('Another Task');
     });

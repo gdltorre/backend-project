@@ -5,8 +5,8 @@ export declare enum TaskStatus {
 }
 export declare class CreateTaskDto {
     title: string;
-    description: string;
-    status: TaskStatus;
+    description?: string;
+    status?: TaskStatus;
 }
 export declare class UpdateTaskDto {
     title?: string;

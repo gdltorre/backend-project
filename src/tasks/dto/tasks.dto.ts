@@ -8,17 +8,15 @@ export enum TaskStatus {
 }
 
 export class CreateTaskDto {
-    @IsString()
     @IsNotEmpty()
     title: string;
 
-    @IsString()
-    @IsNotEmpty()
-    description: string;
+    @IsOptional()
+    description?: string;
 
     @IsEnum(TaskStatus)
     @IsNotEmpty()
-    status: TaskStatus;
+    status?: TaskStatus = TaskStatus.TODO;
 }
 
 export class UpdateTaskDto {
