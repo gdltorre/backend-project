@@ -1,4 +1,4 @@
-import {Controller, Post, Body, UseGuards, Request, Get, Param, HttpCode, HttpStatus} from '@nestjs/common';
+import {Controller, Post, Body, UseGuards, Request, Get, Param, HttpCode, HttpStatus, NotFoundException} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import {JwtAuthGuard} from "./jwt-auth.guard";
@@ -22,8 +22,12 @@ export class AuthController {
 
     @Get('users/:id')
     async getUser(@Param('id') id: string) {
-        return this.usersService.findOne(+id);
-    }
+        const user = await this.usersService.findOne(+id);
+        if (!user) {
+          throw new NotFoundException(`User with ID ${id} not found`);
+        }
+        return user;
+      }
 
     // Get all users
     @Get('users')

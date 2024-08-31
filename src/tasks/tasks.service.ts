@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './task.entity';
@@ -14,8 +14,8 @@ export class TasksService {
 
     async create(createTaskDto: CreateTaskDto, user: User): Promise<Task> {
         const task = this.tasksRepository.create({
-            ...createTaskDto,
-            user: user,
+          ...createTaskDto,
+          user,
         });
         return this.tasksRepository.save(task);
     }
@@ -24,14 +24,15 @@ export class TasksService {
     }
 
     async findOne(id: number, user: User): Promise<Task> {
-        return this.tasksRepository.findOne({ where: { id, user: { id: user.id } } });
+        const task = await this.tasksRepository.findOne({ where: { id, user: { id: user.id } } });
+        if (!task) {
+          throw new NotFoundException(`Task with ID "${id}" not found`);
+        }
+        return task;
     }
 
     async update(id: number, updateTaskDto: UpdateTaskDto, user: User): Promise<Task> {
         const task = await this.findOne(id, user);
-        if (!task) {
-          throw new Error('Task not found');
-        }
         Object.assign(task, updateTaskDto);
         return this.tasksRepository.save(task);
     }
@@ -39,7 +40,7 @@ export class TasksService {
     async remove(id: number, user: User): Promise<void> {
         const result = await this.tasksRepository.delete({ id, user: { id: user.id } });
         if (result.affected === 0) {
-          throw new Error('Task not found');
+          throw new NotFoundException(`Task with ID "${id}" not found`);
         }
-      }
+    }
 }

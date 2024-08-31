@@ -13,6 +13,14 @@ export const AppDataSource = new DataSource({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     entities: [User, Task],
-    migrations: ['src/migrations/*.ts'],
+    migrations: ['src/migrations/*{.ts,.js}'],
     synchronize: false,
+});
+
+AppDataSource.initialize()
+  .then(() => {
+    console.log('Data Source has been initialized!');
+  })
+  .catch((err) => {
+    console.error('Error during Data Source initialization:', err);
 });

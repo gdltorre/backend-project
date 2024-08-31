@@ -30,7 +30,11 @@ let AuthController = class AuthController {
         return this.authService.register(registerDto);
     }
     async getUser(id) {
-        return this.usersService.findOne(+id);
+        const user = await this.usersService.findOne(+id);
+        if (!user) {
+            throw new common_1.NotFoundException(`User with ID ${id} not found`);
+        }
+        return user;
     }
     async getUsers() {
         return this.usersService.findAll();

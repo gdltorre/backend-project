@@ -44,15 +44,19 @@ let AuthService = AuthService_1 = class AuthService {
         return null;
     }
     async login(user) {
+        this.logger.debug(`Generating JWT token for user: ${user.username}`);
         const payload = { username: user.username, sub: user.id };
+        const token = this.jwtService.sign(payload);
+        this.logger.debug(`Generated token: ${token}`);
         return {
-            access_token: this.jwtService.sign(payload),
+            access_token: token,
         };
     }
     async register(registerDto) {
+        this.logger.debug(`Registering new user: ${registerDto.username}`);
         const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-        const newUser = await this.usersService.create(Object.assign(Object.assign({}, registerDto), { password: hashedPassword }));
-        return this.login(newUser);
+        const user = await this.usersService.create(Object.assign(Object.assign({}, registerDto), { password: hashedPassword }));
+        return this.login(user);
     }
 };
 exports.AuthService = AuthService;

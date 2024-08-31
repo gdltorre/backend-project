@@ -29,7 +29,6 @@ describe('AppController (e2e)', () => {
     //dataSource = moduleFixture.get<DataSource>(DataSource);
     
     await app.init();
-    dataSource = app.get(DataSource);
   }, 60000);
 
   afterEach(async () => {
@@ -52,9 +51,10 @@ describe('AppController (e2e)', () => {
         .post('/auth/register')
         .send({ username: 'testuser', password: 'testpass', name: 'Test User', email: 'test@example.com' })
         .expect(201);
-
-      expect(response.body).toHaveProperty('id');
-      userId = response.body.id;
+  
+      expect(response.body).toHaveProperty('access_token');
+      jwtToken = response.body.access_token;
+      console.log('JWT Token after registration:', jwtToken);
     });
 
     it('should authenticate user and return JWT token', async () => {
@@ -67,7 +67,7 @@ describe('AppController (e2e)', () => {
       
       expect(response.body).toHaveProperty('access_token');
       jwtToken = response.body.access_token;
-      console.log('JWT Token:', jwtToken); 
+      console.log('JWT Token after login:', jwtToken); 
     });
 
     it('should retrieve user details by ID via GET /auth/users/:id', async () => {
@@ -96,13 +96,13 @@ describe('AppController (e2e)', () => {
   });
 
   describe('Task Management Operations', () => {
-    it('should create a new task via POST /tasks', async () => {
-      console.log('Using JWT Token:', jwtToken); // Log the token before use
+    it('should create a new task', async () => {
       const response = await request(app.getHttpServer())
         .post('/tasks')
         .set('Authorization', `Bearer ${jwtToken}`)
         .send({ title: 'Test Task', description: 'This is a test task', status: TaskStatus.TODO })
         .expect(201);
+  
       expect(response.body).toHaveProperty('id');
       taskId = response.body.id;
     });
