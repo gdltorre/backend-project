@@ -27,6 +27,9 @@ let TasksService = class TasksService {
         });
     }
     async create(createTaskDto, user) {
+        if (!createTaskDto.title || createTaskDto.title.trim() === '') {
+            throw new common_1.BadRequestException('Title cannot be empty');
+        }
         const { title, description, status } = createTaskDto;
         const task = this.tasksRepository.create({
             title,

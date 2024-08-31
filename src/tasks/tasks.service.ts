@@ -13,6 +13,9 @@ export class TasksService {
     ) {}
 
     async create(createTaskDto: CreateTaskDto, user: User): Promise<Task> {
+        if (!createTaskDto.title || createTaskDto.title.trim() === '') {
+            throw new BadRequestException('Title cannot be empty');
+        }
         const { title, description, status } = createTaskDto;
         const task = this.tasksRepository.create({
           title,
