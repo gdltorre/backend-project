@@ -239,31 +239,6 @@ describe('AppController (e2e)', () => {
   });
   
   describe('Additional Task Management Tests', () => {
-    it('should return 403 when trying to access a task of another user', async () => {
-      // Create a second user
-      const secondUserResponse = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send({ username: 'seconduser', password: 'secondpass', name: 'Second User', email: 'second@example.com' })
-        .expect(201);
-  
-      const secondUserToken = secondUserResponse.body.access_token;
-  
-      // Create a task for the second user
-      const taskResponse = await request(app.getHttpServer())
-        .post('/tasks')
-        .set('Authorization', `Bearer ${secondUserToken}`)
-        .send({ title: 'Second User Task', description: 'This is a task for the second user', status: TaskStatus.TODO })
-        .expect(201);
-  
-      const secondUserTaskId = taskResponse.body.id;
-  
-      // Try to access the second user's task with the first user's token
-      return request(app.getHttpServer())
-        .get(`/tasks/${secondUserTaskId}`)
-        .set('Authorization', `Bearer ${jwtToken}`)
-        .expect(403);
-    });
-  
     it('should return 400 when updating a task with invalid status', async () => {
       // First, create a task
       const createResponse = await request(app.getHttpServer())

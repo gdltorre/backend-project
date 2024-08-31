@@ -29,14 +29,44 @@ let TasksController = class TasksController {
     create(createTaskDto, req) {
         return this.tasksService.create(createTaskDto, req.user);
     }
-    findAll(req) {
-        return this.tasksService.findAll(req.user);
+    async findAll(req) {
+        try {
+            return await this.tasksService.findAll(req.user);
+        }
+        catch (error) {
+            throw new common_1.InternalServerErrorException('Error retrieving tasks');
+        }
     }
-    findOne(id, req) {
-        return this.tasksService.findOne(+id, req.user);
+    async findOne(id, req) {
+        try {
+            return await this.tasksService.findOne(+id, req.user);
+        }
+        catch (error) {
+            if (error instanceof common_1.NotFoundException) {
+                throw error;
+            }
+            if (error instanceof common_1.ForbiddenException) {
+                throw error;
+            }
+            throw new common_1.InternalServerErrorException('Error retrieving task');
+        }
     }
-    update(id, updateTaskDto, req) {
-        return this.tasksService.update(+id, updateTaskDto, req.user);
+    async update(id, updateTaskDto, req) {
+        try {
+            return await this.tasksService.update(+id, updateTaskDto, req.user);
+        }
+        catch (error) {
+            if (error instanceof common_1.NotFoundException) {
+                throw error;
+            }
+            if (error instanceof common_1.ForbiddenException) {
+                throw error;
+            }
+            if (error instanceof common_1.BadRequestException) {
+                throw error;
+            }
+            throw new common_1.InternalServerErrorException('Error updating task');
+        }
     }
     remove(id, req) {
         return this.tasksService.remove(+id, req.user);
@@ -56,7 +86,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], TasksController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
@@ -64,7 +94,7 @@ __decorate([
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], TasksController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
@@ -73,7 +103,7 @@ __decorate([
     __param(2, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, tasks_dto_1.UpdateTaskDto, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], TasksController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),

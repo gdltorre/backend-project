@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, NotFoundException, ForbiddenException, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateTaskDto, UpdateTaskDto } from './dto/tasks.dto';
@@ -14,18 +14,48 @@ export class TasksController {
     }
 
     @Get()
-    findAll(@Request() req) {
-        return this.tasksService.findAll(req.user);
+    async findAll(@Request() req) {
+        try {
+            return await this.tasksService.findAll(req.user);
+        } 
+        catch (error) {
+            throw new InternalServerErrorException('Error retrieving tasks');
+        }
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string, @Request() req) {
-        return this.tasksService.findOne(+id, req.user);
+    async findOne(@Param('id') id: string, @Request() req) {
+        try {
+        return await this.tasksService.findOne(+id, req.user);
+        } 
+        catch (error) {
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+            if (error instanceof ForbiddenException) {
+                throw error;
+            }
+            throw new InternalServerErrorException('Error retrieving task');
+        }
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @Request() req) {
-        return this.tasksService.update(+id, updateTaskDto, req.user);
+    async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @Request() req) {
+        try {
+            return await this.tasksService.update(+id, updateTaskDto, req.user);
+        } 
+        catch (error) {
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+            if (error instanceof ForbiddenException) {
+                throw error;
+            }
+            if (error instanceof BadRequestException) {
+                throw error;
+            }
+            throw new InternalServerErrorException('Error updating task');
+        }
     }
 
     @Delete(':id')

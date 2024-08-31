@@ -33,30 +33,26 @@ export class TasksService {
 
     async findOne(id: number, user: User): Promise<Task> {
         if (isNaN(id)) {
-            throw new BadRequestException('Invalid task ID');
+          throw new BadRequestException('Invalid task ID');
         }
-        const task = await this.tasksRepository.findOne({ where: { id, user: { id: user.id } } });
+        const task = await this.tasksRepository.findOne({ where: { id }, relations: ['user'] });
         if (!task) {
           throw new NotFoundException(`Task with ID "${id}" not found`);
         }
         if (task.user && task.user.id !== user.id) {
-            throw new ForbiddenException('You do not have permission to access this task');
-          }
+          throw new ForbiddenException('You do not have permission to access this task');
+        }
         return task;
     }
 
     async update(id: number, updateTaskDto: UpdateTaskDto, user: User): Promise<Task> {
-        if (isNaN(id)) {
-          throw new BadRequestException('Invalid task ID');
-        }
         const task = await this.findOne(id, user);
+        
         if (updateTaskDto.status && !Object.values(TaskStatus).includes(updateTaskDto.status)) {
-            throw new BadRequestException('Invalid task status');
+          throw new BadRequestException('Invalid task status');
         }
-
-        // Update the Task
+    
         Object.assign(task, updateTaskDto);
-
         return this.tasksRepository.save(task);
     }
 
