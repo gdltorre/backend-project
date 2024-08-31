@@ -214,4 +214,102 @@ describe('AppController (e2e)', () => {
         .expect(404);
     });
   });
+
+  describe('Additional Authentication Tests', () => {
+    it('should return 401 when login credentials are incorrect', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: 'wronguser', password: 'wrongpass' })
+        .expect(401);
+    });
+  
+    it('should return 400 when registering with incomplete data', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ username: 'testuser' }) // Missing password, name, and email
+        .expect(400);
+    });
+  
+    it('should return 404 when getting a non-existent user', async () => {
+      return request(app.getHttpServer())
+        .get('/auth/users/99999')
+        .set('Authorization', `Bearer ${jwtToken}`)
+        .expect(404);
+    });
+  });
+  
+  describe('Additional Task Management Tests', () => {
+    it('should return 403 when trying to access a task of another user', async () => {
+      // Create a second user
+      const secondUserResponse = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ username: 'seconduser', password: 'secondpass', name: 'Second User', email: 'second@example.com' })
+        .expect(201);
+  
+      const secondUserToken = secondUserResponse.body.access_token;
+  
+      // Create a task for the second user
+      const taskResponse = await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `Bearer ${secondUserToken}`)
+        .send({ title: 'Second User Task', description: 'This is a task for the second user', status: TaskStatus.TODO })
+        .expect(201);
+  
+      const secondUserTaskId = taskResponse.body.id;
+  
+      // Try to access the second user's task with the first user's token
+      return request(app.getHttpServer())
+        .get(`/tasks/${secondUserTaskId}`)
+        .set('Authorization', `Bearer ${jwtToken}`)
+        .expect(403);
+    });
+  
+    it('should return 400 when updating a task with invalid status', async () => {
+      // First, create a task
+      const createResponse = await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `Bearer ${jwtToken}`)
+        .send({ title: 'Test Task', description: 'Test Description', status: TaskStatus.TODO })
+        .expect(201);
+  
+      const taskId = createResponse.body.id;
+  
+      // Now try to update it with an invalid status
+      return request(app.getHttpServer())
+        .patch(`/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${jwtToken}`)
+        .send({ status: 'INVALID_STATUS' })
+        .expect(400);
+    });
+  
+    it('should return 404 when updating a non-existent task', async () => {
+      return request(app.getHttpServer())
+        .patch('/tasks/99999')
+        .set('Authorization', `Bearer ${jwtToken}`)
+        .send({ title: 'Updated Title' })
+        .expect(404);
+    });
+  
+    it('should return 404 when deleting a non-existent task', async () => {
+      return request(app.getHttpServer())
+        .delete('/tasks/99999')
+        .set('Authorization', `Bearer ${jwtToken}`)
+        .expect(404);
+    });
+  
+    it('should return tasks sorted by creation date', async () => {
+      // Create multiple tasks
+      await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `Bearer ${jwtToken}`)
+        .send({ title: 'Task 1', description: 'First task', status: TaskStatus.TODO })
+        .expect(201);
+  
+      await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `Bearer ${jwtToken}`)
+        .send({ title: 'Task 2', description: 'Second task', status: TaskStatus.IN_PROGRESS })
+        .expect(201);
+    });
+  });
 });

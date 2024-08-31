@@ -51,6 +51,9 @@ let TasksService = class TasksService {
         if (!task) {
             throw new common_1.NotFoundException(`Task with ID "${id}" not found`);
         }
+        if (task.user && task.user.id !== user.id) {
+            throw new common_1.ForbiddenException('You do not have permission to access this task');
+        }
         return task;
     }
     async update(id, updateTaskDto, user) {
@@ -58,12 +61,11 @@ let TasksService = class TasksService {
             throw new common_1.BadRequestException('Invalid task ID');
         }
         const task = await this.findOne(id, user);
-        if (!task) {
-            throw new common_1.NotFoundException(`Task with ID "${id}" not found`);
+        if (updateTaskDto.status && !Object.values(task_entity_1.TaskStatus).includes(updateTaskDto.status)) {
+            throw new common_1.BadRequestException('Invalid task status');
         }
         Object.assign(task, updateTaskDto);
-        await this.tasksRepository.save(task);
-        return task;
+        return this.tasksRepository.save(task);
     }
     async remove(id, user) {
         const task = await this.tasksRepository.findOne({ where: { id, user: { id: user.id } } });

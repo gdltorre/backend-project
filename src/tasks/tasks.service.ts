@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task, TaskStatus } from './task.entity';
@@ -39,6 +39,9 @@ export class TasksService {
         if (!task) {
           throw new NotFoundException(`Task with ID "${id}" not found`);
         }
+        if (task.user && task.user.id !== user.id) {
+            throw new ForbiddenException('You do not have permission to access this task');
+          }
         return task;
     }
 
@@ -47,15 +50,14 @@ export class TasksService {
           throw new BadRequestException('Invalid task ID');
         }
         const task = await this.findOne(id, user);
-        if (!task) {
-            throw new NotFoundException(`Task with ID "${id}" not found`);
+        if (updateTaskDto.status && !Object.values(TaskStatus).includes(updateTaskDto.status)) {
+            throw new BadRequestException('Invalid task status');
         }
 
         // Update the Task
         Object.assign(task, updateTaskDto);
 
-        await this.tasksRepository.save(task);
-        return task;
+        return this.tasksRepository.save(task);
     }
 
     async remove(id: number, user: User): Promise<void> {

@@ -69,6 +69,9 @@ let AuthService = AuthService_1 = class AuthService {
     }
     async register(registerDto) {
         this.logger.debug(`Registering new user: ${registerDto.username}`);
+        if (!registerDto.username || !registerDto.password || !registerDto.name || !registerDto.email) {
+            throw new common_1.BadRequestException('Missing required fields');
+        }
         const hashedPassword = await bcrypt.hash(registerDto.password, 10);
         const user = await this.usersService.create(Object.assign(Object.assign({}, registerDto), { password: hashedPassword }));
         return this.login(user);

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -36,6 +36,10 @@ export class AuthService {
 
   async register(registerDto: any) {
     this.logger.debug(`Registering new user: ${registerDto.username}`);
+    // Validate required fields
+    if (!registerDto.username || !registerDto.password || !registerDto.name || !registerDto.email) {
+        throw new BadRequestException('Missing required fields');
+    }
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
     const user = await this.usersService.create({
       ...registerDto,

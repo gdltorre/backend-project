@@ -79,10 +79,6 @@ describe('UsersService', () => {
         expect(task.id).toBeDefined();
         expect(task.title).toBe('Test Task');
 
-        // Check if task.user is defined before accessing its id
-        //expect(task.user).toBeDefined();
-        //expect(task.user.id).toBe(user.id);
-
         const userTasks = await tasksService.findAll(user);
         expect(userTasks).toHaveLength(1);
         expect(userTasks[0].id).toBe(task.id);
