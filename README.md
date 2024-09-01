@@ -4,15 +4,10 @@ This project is made to be ran in Apple's M1 based processors. If running in Int
 rm -rf node_modules
 npm install
 ```
-
-// no longer needed
-
-Before attemtping to connect to the database, make sure to create the admin user and the database_admin database with the following commands:
+Make sure to run: to install all required dependencies
 ```
-createuser -s admin
-createdb admin_database
+npm install
 ```
-
 
 Setup the database with 
 ```
@@ -24,22 +19,15 @@ Access the database by running command:
 psql -h localhost -p 5432 -U admin -d admin_database
 ```
 
-// no longer needed
-
-Lastly, relations weren't created automatically, after logging in to the database with the command, execute this code:
-```
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL
-);
-```
-
 Run the application with 
 ```
 npm run start:dev
+```
+
+Run application tests with both:
+```
+npm run test
+npm run test:e2e
 ```
 
 Endpoints for user management:
@@ -49,17 +37,10 @@ POST to http://localhost:3000/auth/register
 With body:
 ```
 {
-  "username": "liveUser2",
-  "name": "live",
-  "password": "livePassword",
+  "username": "testuser",
+  "name": "Test User",
+  "password": "testpassword",
   "email": "testuser@example.com",
-  "tasks": {
-    "id": 5,
-    "description": "description",
-    "title": "title",
-    "status": "activated",
-    "user": "testuser"
-  }
 }
 ```
 
@@ -68,10 +49,23 @@ POST to http://localhost:3000/auth/login
 With body:
 ```
 {
-      "username": "gerardo123",
-      "password": "gerardo1234"
+      "username": "testuser",
+      "password": "testpassword"
 }
 ```
+Post a Task:
+After successfully authenticating with a user Token, you can assign a 
+POST to http://localhost:3000/tasks
+With body:
+```
+{
+    "description": "description",
+    "title": "title",
+    "status": "TODO"
+}
+```
+
+
 
 Get all users:
 GET to http://localhost:3000/auth/users
