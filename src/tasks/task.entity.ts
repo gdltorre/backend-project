@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index } from 'typeorm';
 import { User } from '../users/user.entity';
 
 export enum TaskStatus {
@@ -8,6 +8,7 @@ export enum TaskStatus {
 }
 
 @Entity('tasks')
+@Index(['user', 'status'])
 export class Task {
     @PrimaryGeneratedColumn()
     id: number;
@@ -23,8 +24,10 @@ export class Task {
         enum: TaskStatus,
         default: TaskStatus.TODO,
     })
+    @Index()
     status: TaskStatus;
 
     @ManyToOne(() => User, user => user.tasks)
+    @Index()
     user: User;
 }
