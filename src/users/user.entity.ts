@@ -18,6 +18,6 @@ export class User {
     @Column()
     email: string;
 
-    @OneToMany(() => Task, task => task.user)
-    tasks: Task[];
+    @OneToMany(() => Task, task => task.user, { lazy: true})
+    tasks: Promise<Task[]>;
 }
