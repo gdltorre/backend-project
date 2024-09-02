@@ -40,7 +40,7 @@ With body:
   "username": "testuser",
   "name": "Test User",
   "password": "testpassword",
-  "email": "testuser@example.com",
+  "email": "testuser@example.com"
 }
 ```
 
