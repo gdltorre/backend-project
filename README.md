@@ -54,7 +54,7 @@ With body:
 }
 ```
 Post a Task:
-After successfully authenticating with a user Token, you can assign a 
+After successfully authenticating with a user Token, you can assign a Task to a user by: 
 POST to http://localhost:3000/tasks
 With body:
 ```
@@ -65,15 +65,21 @@ With body:
 }
 ```
 
-
-
 Get all users:
 GET to http://localhost:3000/auth/users
 Headers: auth token
 
+Get all tasks:
+GET to http://localhost:3000/tasks
+
 Get user by id:
-GET to http://localhost:3000/auth/user/%7B%7Buser.id%7D%7D
+GET to http://localhost:3000/auth/users/'id'
 For example: http://localhost:3000/auth/user/7
+
+Get tasks by id:
+GET to http://localhost:3000/tasks/'id'
+For example: http://localhost:3000/tasks/4
+
 
 This project is using JWT for authentication, so any call other than login/register will require the headers to include the access_token from the login.
 
